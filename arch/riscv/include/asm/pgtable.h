@@ -284,10 +284,38 @@ static inline pte_t pud_pte(pud_t pud)
 	return __pte(pud_val(pud));
 }
 
+static inline bool has_svnapot(void) {
+	u64 _val;
+	ALT_SVNAPOT(_val);
+	return _val;
+}
+
+#ifdef CONFIG_SVNAPOT
+
+static inline unsigned long pte_napot(pte_t pte)
+{
+	return pte_val(pte) & _PAGE_NAPOT;
+}
+
+static inline pte_t pte_mknapot(pte_t pte, unsigned int order)
+{
+	unsigned long napot_bits = (1UL << (order - 1)) << _PAGE_PFN_SHIFT;
+	unsigned long lower_prot =
+		pte_val(pte) & ((1UL << _PAGE_PFN_SHIFT) - 1UL);
+	unsigned long upper_prot = (pte_val(pte) >> _PAGE_PFN_SHIFT)
+				   << _PAGE_PFN_SHIFT;
+
+	return __pte(upper_prot | napot_bits | lower_prot | _PAGE_NAPOT);
+}
+#endif /* CONFIG_SVNAPOT */
+
 /* Yields the page frame number (PFN) of a page table entry */
 static inline unsigned long pte_pfn(pte_t pte)
 {
-	return __page_val_to_pfn(pte_val(pte));
+	unsigned long _val  = pte_val(pte);
+	ALT_SVNAPOT_PTE_PFN(_val, _PAGE_NAPOT_SHIFT,
+			_PAGE_PFN_MASK, _PAGE_PFN_SHIFT);
+	return _val;
 }
 
 #define pte_page(x)     pfn_to_page(pte_pfn(x))

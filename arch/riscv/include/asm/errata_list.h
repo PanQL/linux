@@ -20,7 +20,8 @@
 #endif
 
 #define	CPUFEATURE_SVPBMT 0
-#define	CPUFEATURE_NUMBER 1
+#define	CPUFEATURE_SVNAPOT 1
+#define	CPUFEATURE_NUMBER 2
 
 #ifdef __ASSEMBLY__
 
@@ -92,6 +93,27 @@ asm volatile(ALTERNATIVE(						\
 #else
 #define ALT_THEAD_PMA(_val)
 #endif
+
+#define ALT_SVNAPOT(_val)						\
+asm(ALTERNATIVE("li %0, 0", "li %0, 1", 0,				\
+		CPUFEATURE_SVNAPOT, CONFIG_SVNAPOT)			\
+		: "=r"(_val) :)
+
+#define ALT_SVNAPOT_PTE_PFN(_val, _napot_shift, _pfn_mask, _pfn_shift)	\
+asm(ALTERNATIVE("and %0, %1, %2\n\t"					\
+		"srli %0, %0, %3\n\t"					\
+		"nop\n\tnop\n\tnop",					\
+		"srli t3, %1, %4\n\t"					\
+		"and %0, %1, %2\n\t"					\
+		"srli %0, %0, %3\n\t"					\
+		"sub  t4, %0, t3\n\t"					\
+		"and  %0, %0, t4",					\
+		0, CPUFEATURE_SVNAPOT, CONFIG_SVNAPOT)			\
+		: "+r"(_val)						\
+		: "r"(_val),						\
+		  "r"(_pfn_mask),					\
+		  "i"(_pfn_shift),					\
+		  "i"(_napot_shift))
 
 #endif /* __ASSEMBLY__ */
 

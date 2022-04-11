@@ -385,6 +385,13 @@ config FPU
 
 	  If you don't know what to do here, say Y.
 
+config SVNAPOT
+	bool "Svnapot support"
+	default n
+	help
+	  Select if your CPU supports Svnapot and you want to enable it when
+	  kernel is booting.
+
 endmenu # "Platform type"
 
 menu "Kernel features"

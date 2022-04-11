@@ -75,6 +75,20 @@ typedef struct {
 #define _PAGE_PFN_MASK  GENMASK(53, 10)
 
 /*
+ * [63] Svnapot definitions:
+ * 0 Svnapot disabled
+ * 1 Svnapot enabled
+ */
+#define _PAGE_NAPOT_SHIFT 63
+#define _PAGE_NAPOT      (1UL << _PAGE_NAPOT_SHIFT)
+#define NAPOT_CONT64KB_ORDER 4UL
+#define NAPOT_CONT64KB_SHIFT (NAPOT_CONT64KB_ORDER + PAGE_SHIFT)
+#define NAPOT_CONT64KB_SIZE (1UL << NAPOT_CONT64KB_SHIFT)
+#define NAPOT_CONT64KB_MASK (NAPOT_CONT64KB_SIZE - 1)
+#define NAPOT_64KB_PTE_NUM (1UL << NAPOT_CONT64KB_ORDER)
+#define NAPOT_64KB_MASK (7UL << _PAGE_PFN_SHIFT)
+
+/*
  * [62:61] Svpbmt Memory Type definitions:
  *
  *  00 - PMA    Normal Cacheable, No change to implied PMA memory type
